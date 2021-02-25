@@ -3,13 +3,13 @@ close all;
 clear all;
 
 % load image
-vp=ones(6000,6000)*2000;
+vp=ones(4000,4000)*2000;
 
 % dimensions
 dt=10^-3;
 dx=10;
 dz=10;
-nt=1000;
+nt=100;
 nx=size(vp,1);
 nz=size(vp,2);
 
@@ -91,7 +91,7 @@ print(gcf,['C55.png'],'-dpng','-r200');
 %}
 %%
 % point interval in time steps
-plot_interval=100;
+plot_interval=0;
 
 p2=mfilename('fullpath');
 if ~exist(p2,'dir')

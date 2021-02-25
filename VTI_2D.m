@@ -77,16 +77,13 @@ ts=sigmas11;
 ts2=sigmas11;
 
 l=1;
-ts(ind_sor)=src1(1,:);
-ts2(ind_sor)=src3(1,:);
 
 switch source_type
     case 'D'
-        v1(:,:,3)=v1(:,:,3)+.5./C.rho.*ts;
-        v3(:,:,3)=v3(:,:,3)+.5./C.rho.*ts2;
+        v1(ind_sor)=v1(ind_sor)+.5./C.rho(ind_sor).*src1(l,:);
+        v3(ind_sor)=v3(ind_sor)+.5./C.rho(ind_sor).*src3(l,:);
     case 'P'
-        v1(:,:,3)=v1(:,:,3)+.5./C.rho.*D(ts,-1)/dx;
-        v3(:,:,3)=v3(:,:,3)+.5./C.rho.*D(ts2,-3)/dz;
+        p(ind_sor)=p(ind_sor)+.5./C.rho(ind_sor).*src3(l,:);
 end
 %% save wavefield
 if save_wavefield==1
@@ -127,13 +124,7 @@ for l=2:nt-1
     v1_x=D(v1(:,:,2),1)/dx;
     v3_x=D(v3(:,:,2),-1)/dx;
     v1_z=D(v1(:,:,2),-3)/dz;
-    v3_z=D(v3(:,:,2),3)/dz;
-    
-    v1_x2=D(v1(:,:,1),1)/dx;
-    v3_x2=D(v3(:,:,1),-1)/dx;
-    v1_z2=D(v1(:,:,1),-3)/dz;
-    v3_z2=D(v3(:,:,1),3)/dz;
-    
+    v3_z=D(v3(:,:,2),3)/dz;  
     
     sigmas11=dt*.5*((C.C11-C.C13).*v1_x...
         +(C.C13-C.C33).*v3_z)...
@@ -152,15 +143,6 @@ for l=2:nt-1
     p=-dt*((C.C11+C.C33)*.5.*v1_x+(C.C13+C.C33)*.5.*v3_z) ...
         +p ...
         -dt*beta.*p;
-    %%
-    ts(ind_sor)=src1(l,:);
-    ts2(ind_sor)=src3(l,:);
-    %{
-    switch source_type
-        case 'D'
-            p=p+1./C.rho.*ts2;
-    end
-    %}
     %% compute v
     v1(:,:,3)=dt./C.rho.*(D(sigmas11-p,-1)/dx...
         +D(sigmas13,3)/dz)...
@@ -171,19 +153,16 @@ for l=2:nt-1
         +v3(:,:,3)...
         -dt*beta.*v3(:,:,2);
     
-    
-    ts(ind_sor)=src1(l,:);
-    ts2(ind_sor)=src3(l,:);
-    
+
     switch source_type
         case 'D'
-            v1(:,:,3)=v1(:,:,3)+1./C.rho.*ts;
-            v3(:,:,3)=v3(:,:,3)+1./C.rho.*ts2;
+            v1(ind_sor)=v1(ind_sor)+1./C.rho(ind_sor).*src1(l,:);
+            v3(ind_sor)=v3(ind_sor)+1./C.rho(ind_sor).*src3(l,:);
         case 'P'
-            v1(:,:,3)=v1(:,:,3)+1./C.rho.*D(ts,-1)/dx;
-            v3(:,:,3)=v3(:,:,3)+1./C.rho.*D(ts2,-3)/dz;
+            p(ind_sor)=p(ind_sor)+1./C.rho(ind_sor).*src3(l,:);
     end
     %% fixed boundary condition
+    %{
     v1(1,:,3)=0;
     v1(end,:,3)=0;
     v1(:,1,3)=0;
@@ -193,6 +172,7 @@ for l=2:nt-1
     v3(end,:,3)=0;
     v3(:,1,3)=0;
     v3(:,end,3)=0;
+    %}
     %% assign recordings
     R1(l+1,:)=v1(ind_rec);
     R3(l+1,:)=v3(ind_rec);
